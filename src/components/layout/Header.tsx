@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { BUSINESS_INFO } from '@/lib/data';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 
 const NAV_LINKS = [
   { name: 'Home', href: '/' },
@@ -21,6 +22,8 @@ const NAV_LINKS = [
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const isHomePage = pathname === '/';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -30,11 +33,15 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Header should be transparent only on Home page when not scrolled or menu not open
+  // IF NOT Home page, it should always be solid or at least look like 'scrolled' state
+  const isTransparent = isHomePage && !isScrolled && !mobileMenuOpen;
+
   return (
     <header
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
-        isScrolled || mobileMenuOpen ? 'bg-cream/95 backdrop-blur-sm shadow-md py-2' : 'bg-transparent py-4'
+        isTransparent ? 'bg-transparent py-4' : 'bg-cream/95 backdrop-blur-sm shadow-md py-2'
       )}
     >
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between gap-4">
@@ -42,13 +49,13 @@ export function Header() {
         <Link href="/" className="flex flex-col">
           <span className={cn(
             "font-serif text-2xl md:text-3xl font-bold tracking-tight leading-none transition-colors",
-            isScrolled || mobileMenuOpen ? "text-espresso" : "text-cream"
+            isTransparent ? "text-cream" : "text-espresso"
           )}>
             Forever Blessed
           </span>
           <span className={cn(
             "text-xs uppercase tracking-[0.15em] font-semibold transition-colors",
-            isScrolled || mobileMenuOpen ? "text-sage" : "text-cream/80"
+            isTransparent ? "text-cream/80" : "text-sage"
           )}>
             Cafe & Breakfast
           </span>
@@ -62,7 +69,7 @@ export function Header() {
               href={link.href}
               className={cn(
                 "text-sm font-medium transition-colors uppercase tracking-wide",
-                isScrolled ? "text-espresso/80 hover:text-sage" : "text-cream/90 hover:text-white"
+                isTransparent ? "text-cream/90 hover:text-white" : "text-espresso/80 hover:text-sage"
               )}
             >
               {link.name}
@@ -78,7 +85,7 @@ export function Header() {
               size="sm" 
               className={cn(
                 "gap-2 transition-colors",
-                !isScrolled ? "border-cream text-cream hover:bg-cream hover:text-espresso hover:border-cream" : ""
+                isTransparent ? "border-cream text-cream hover:bg-cream hover:text-espresso hover:border-cream" : ""
               )}
             >
               <Phone className="h-4 w-4" />
@@ -97,7 +104,7 @@ export function Header() {
         <button
           className={cn(
             "lg:hidden p-2 transition-colors",
-            isScrolled || mobileMenuOpen ? "text-espresso" : "text-cream"
+            isTransparent ? "text-cream" : "text-espresso"
           )}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Toggle menu"
